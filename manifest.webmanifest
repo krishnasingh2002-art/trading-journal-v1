@@ -1,0 +1,10 @@
+{
+  "name":"Trade Process Journal",
+  "short_name":"Trade Journal",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#f5f7fb",
+  "theme_color":"#0f172a",
+  "description":"Local-first trading process, execution and psychology journal.",
+  "icons":[{"src":"icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
