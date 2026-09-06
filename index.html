@@ -1,511 +1,348 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CLS Trading Journal V2</title>
-    <!-- Tailwind CSS for rapid, clean styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Supabase JS Client UMD -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-        body { font-family: 'Plus Jakarta+Sans', sans-serif; }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Trade Journal">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<title>Trade Process Journal</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#172033;--muted:#687386;--line:#e4e8ef;--accent:#3157d5;--accent2:#eef2ff;--good:#16845b;--bad:#c53b45;--warn:#a56a00;--shadow:0 8px 28px rgba(21,32,55,.08);--radius:16px}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif}
+button,input,select,textarea{font:inherit} button{cursor:pointer}
+.app{max-width:1180px;margin:auto;padding:18px 16px 48px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.brand h1{font-size:24px;margin:0}.brand p{margin:3px 0 0;color:var(--muted)}
+nav{display:flex;gap:7px;overflow:auto;padding:4px;background:#e9edf5;border-radius:12px}
+nav button{border:0;background:transparent;padding:9px 12px;border-radius:9px;color:#536075;white-space:nowrap}
+nav button.active{background:#fff;color:var(--ink);box-shadow:0 2px 7px #cdd3df}
+.screen{display:none}.screen.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}.span-3{grid-column:span 3}
+h2{font-size:18px;margin:0 0 13px}h3{font-size:15px;margin:0 0 10px}.muted{color:var(--muted)}.small{font-size:12px;color:var(--muted)}
+label{display:block;font-weight:600;font-size:13px;margin:0 0 6px}.field{margin-bottom:13px}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 11px;background:#fff;color:var(--ink);outline:none}input:focus,select:focus,textarea:focus{border-color:#93a5ea;box-shadow:0 0 0 3px #eef1ff}textarea{min-height:90px;resize:vertical}
+.row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.row3{grid-template-columns:repeat(3,1fr)}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700}.primary{background:var(--accent);color:#fff}.secondary{background:#edf1f7;color:var(--ink)}.danger{background:#feecef;color:var(--bad)}.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.actions{display:flex;flex-wrap:wrap;gap:8px}.actions.end{justify-content:flex-end}
+.badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:700;background:#eef1f5}.good{background:#e7f7ef;color:var(--good)}.bad{background:#fdebed;color:var(--bad)}.warn{background:#fff5df;color:var(--warn)}.blue{background:#eaf0ff;color:var(--accent)}
+.stat{padding:14px;border:1px solid var(--line);border-radius:13px;background:#fafbfe}.stat .n{font-size:22px;font-weight:800}.stat .l{font-size:12px;color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.check{display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;margin-bottom:7px;font-weight:500}.check input{width:auto;margin-top:3px}.check span{flex:1}
+.progress{height:8px;background:#edf0f5;border-radius:20px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--accent)}
+.callout{padding:12px;border-radius:12px;background:var(--accent2);border:1px solid #dce3ff}.callout.warn{background:#fff8e8;border-color:#f2dfac}.callout.bad{background:#fff0f1;border-color:#f3c8cd}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}th{font-size:12px;color:var(--muted);font-weight:700}
+.empty{text-align:center;padding:38px;color:var(--muted)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.toolbar>*{flex:1;min-width:140px}
+.trade-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.trade-head h2{margin-bottom:4px}
+.taglist{display:flex;gap:6px;flex-wrap:wrap}.tag{padding:5px 8px;background:#f0f2f6;border-radius:8px;font-size:12px}
+.review-q{border-left:3px solid var(--accent);padding-left:12px;margin:12px 0}.review-q b{display:block;margin-bottom:6px}
+footer{margin-top:18px;color:var(--muted);font-size:12px;text-align:center}
+@media(max-width:800px){.span-8,.span-6,.span-4,.span-3{grid-column:span 12}.kpis{grid-template-columns:repeat(2,1fr)}.row,.row3{grid-template-columns:1fr}.app{padding:12px 10px 38px}header{align-items:flex-start;flex-direction:column}}
+</style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+<body>
+<div class="app">
+<header>
+  <div class="brand"><h1>Trade Process Journal</h1><p>Evidence first. Execution second. Outcome third.</p></div>
+  <button class="btn primary" onclick="startNewTrade()">＋ New Trade</button>
+</header>
+<nav id="nav">
+  <button data-screen="dashboard" class="active">Dashboard</button>
+  <button data-screen="new">New Trade</button>
+  <button data-screen="trades">Trade Log</button>
+  <button data-screen="review">Weekly Review</button>
+  <button data-screen="settings">Settings</button>
+</nav>
 
-    <!-- Header Navigation -->
-    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-30">
-        <div class="flex items-center space-x-3">
-            <div class="bg-emerald-500 text-slate-950 font-bold px-2.5 py-1 rounded text-sm">CLS V2</div>
-            <h1 class="text-xl font-bold tracking-tight text-white">Trading Journal</h1>
-        </div>
-        <div class="flex items-center space-x-3">
-            <button onclick="openTab('journalTab')" id="btnJournalTab" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors bg-emerald-600 text-white">Journal</button>
-            <button onclick="openTab('settingsTab')" id="btnSettingsTab" class="px-4 py-2 rounded-lg font-medium text-sm transition-colors text-slate-400 hover:text-white">Settings & Sync</button>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <main class="flex-1 max-w-6xl w-full mx-auto p-4 md:p-6">
-
-        <!-- JOURNAL TAB -->
-        <div id="journalTab" class="space-y-6">
-            
-            <!-- Action Bar -->
-            <div class="flex justify-between items-center bg-slate-900 p-4 rounded-xl border border-slate-800">
-                <div>
-                    <h2 class="text-lg font-bold text-white">Active Sessions & Logs</h2>
-                    <p class="text-xs text-slate-400">Local-first IndexedDB storage with manual cloud backup.</p>
-                </div>
-                <button onclick="openNewTradeModal()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm transition-all shadow-lg shadow-emerald-500/10">
-                    + New CLS Trade
-                </button>
-            </div>
-
-            <!-- Trades List Grid -->
-            <div id="tradesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <!-- Dynamically populated trades render here -->
-                <div class="col-span-full text-center py-12 text-slate-500 border border-dashed border-slate-800 rounded-xl">
-                    No trades logged yet. Click "+ New CLS Trade" to begin.
-                </div>
-            </div>
-        </div>
-
-        <!-- SETTINGS & SYNC TAB -->
-        <div id="settingsTab" class="hidden space-y-6 max-w-2xl mx-auto">
-            <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 space-y-6">
-                <div>
-                    <h2 class="text-lg font-bold text-white">Supabase Cloud Sync</h2>
-                    <p class="text-xs text-slate-400 mt-1">Configure your private Supabase credentials for manual encrypted snapshots and screenshot backups.</p>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Supabase URL</label>
-                        <input type="text" id="supabaseUrl" placeholder="https://your-project.supabase.co" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Supabase Anon Key</label>
-                        <input type="password" id="supabaseKey" placeholder="your-anon-key" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <button onclick="saveSupabaseConfig()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors border border-slate-700">
-                        Save Credentials
-                    </button>
-                </div>
-
-                <hr class="border-slate-800">
-
-                <div class="space-y-3">
-                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Cloud Actions</h3>
-                    <div class="flex gap-3">
-                        <button onclick="syncToCloud()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg text-sm transition-all shadow-lg shadow-emerald-600/20">
-                            Backup / Sync Now
-                        </button>
-                        <button onclick="restoreFromCloud()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-semibold py-3 rounded-lg text-sm transition-colors border border-slate-700">
-                            Restore from Cloud
-                        </button>
-                    </div>
-                    <div id="syncStatus" class="text-xs text-center text-slate-400 pt-2"></div>
-                </div>
-
-                <hr class="border-slate-800">
-
-                <div>
-                    <h3 class="text-sm font-bold text-red-400 uppercase tracking-wider mb-2">Danger Zone</h3>
-                    <button onclick="clearLocalData()" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-semibold py-2 px-4 rounded-lg transition-colors">
-                        Clear Local IndexedDB Data
-                    </button>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- NEW TRADE MODAL -->
-    <div id="tradeModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 space-y-6 my-8">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-4">
-                <h3 class="text-lg font-bold text-white" id="modalTitle">New CLS Trade Entry</h3>
-                <button onclick="closeNewTradeModal()" class="text-slate-400 hover:text-white text-xl">&times;</button>
-            </div>
-
-            <form id="tradeForm" onsubmit="handleTradeSubmit(event)" class="space-y-4">
-                <input type="hidden" id="tradeId">
-
-                <!-- Asset Search Autocomplete -->
-                <div class="relative">
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Trading Pair / Asset</label>
-                    <input type="text" id="assetSearch" placeholder="Type symbol (e.g. RELIANCE, NIFTY, BTCUSDT)..." autocomplete="off" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-                    <div id="autocompleteResults" class="absolute z-20 w-full mt-1 bg-slate-900 border border-slate-800 rounded-lg shadow-2xl hidden max-h-48 overflow-y-auto"></div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Lifecycle Status</label>
-                        <select id="tradeLifecycle" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-                            <option value="Planned">Planned</option>
-                            <option value="Open">Open</option>
-                            <option value="Closed">Closed</option>
-                            <option value="Review Complete">Review Complete</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Model Type</label>
-                        <select id="modelType" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-                            <option value="CLS Model 1">CLS Model 1</option>
-                            <option value="CLS Model 2">CLS Model 2</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Entry Price</label>
-                        <input type="number" step="any" id="entryPrice" placeholder="0.00" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Stop Loss</label>
-                        <input type="number" step="any" id="stopLoss" placeholder="0.00" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-                    </div>
-                </div>
-
-                <!-- CLS Model Execution Checklists -->
-                <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400">Execution Criteria Checklist</h4>
-                    <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
-                        <input type="checkbox" id="check_ciod" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
-                        <span>CIOD Confirmation Close-Mode</span>
-                    </label>
-                    <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
-                        <input type="checkbox" id="check_session" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
-                        <span>Valid Session Timing</span>
-                    </label>
-                    <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
-                        <input type="checkbox" id="check_trc" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
-                        <span>Discount / Premium TRC Alignment</span>
-                    </label>
-                    <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
-                        <input type="checkbox" id="check_manipulation" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
-                        <span>Waited for Manipulation & Sweep</span>
-                    </label>
-                    <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
-                        <input type="checkbox" id="check_htf" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
-                        <span>HTF Alignment Checked (M/W/D/H4)</span>
-                    </label>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Notes / Observations</label>
-                    <textarea id="tradeNotes" rows="3" placeholder="Context, market structure state, psychology..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
-                </div>
-
-                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-800">
-                    <button type="button" onclick="closeNewTradeModal()" class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-400 hover:text-white">Cancel</button>
-                    <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-6 py-2 rounded-lg text-sm transition-all">Save Trade</button>
-                </div>
-            </form>
-        </div>
+<section id="dashboard" class="screen active">
+  <div class="grid">
+    <div class="card span-12">
+      <div class="trade-head"><div><h2>Trading evidence dashboard</h2><div class="muted">Model quality and execution quality are deliberately separated.</div></div><span id="storageStatus" class="badge good">Local data</span></div>
+      <div class="kpis" style="margin-top:14px">
+        <div class="stat"><div class="n" id="kTrades">0</div><div class="l">Closed trades</div></div>
+        <div class="stat"><div class="n" id="kWin">—</div><div class="l">Win rate</div></div>
+        <div class="stat"><div class="n" id="kExpect">—</div><div class="l">Expectancy / trade</div></div>
+        <div class="stat"><div class="n" id="kDD">—</div><div class="l">Max drawdown</div></div>
+      </div>
     </div>
+    <div class="card span-6"><h2>Model quality</h2><div id="modelStats"></div></div>
+    <div class="card span-6"><h2>Execution quality</h2><div id="execStats"></div></div>
+    <div class="card span-4"><h2>Drawdown evidence</h2><div id="ddStats"></div></div>
+    <div class="card span-8"><h2>Recent trades</h2><div id="recent"></div></div>
+  </div>
+</section>
 
-    <!-- Application Script -->
-    <script>
-        // Embedded Asset Database (NSE Stocks, Sectors, Indices & Top Cryptos)
-        const ASSET_DATABASE = [
-            { symbol: "NIFTY", name: "Nifty 50 Index", sector: "Index", type: "Index" },
-            { symbol: "BANKNIFTY", name: "Nifty Bank Index", sector: "Index", type: "Index" },
-            { symbol: "FINNIFTY", name: "Nifty Financial Services", sector: "Index", type: "Index" },
-            { symbol: "RELIANCE", name: "Reliance Industries Ltd.", sector: "Energy", type: "NSE" },
-            { symbol: "TCS", name: "Tata Consultancy Services Ltd.", sector: "IT", type: "NSE" },
-            { symbol: "HDFCBANK", name: "HDFC Bank Ltd.", sector: "Banking", type: "NSE" },
-            { symbol: "INFY", name: "Infosys Ltd.", sector: "IT", type: "NSE" },
-            { symbol: "ICICIBANK", name: "ICICI Bank Ltd.", sector: "Banking", type: "NSE" },
-            { symbol: "SBIN", name: "State Bank of India", sector: "Banking", type: "NSE" },
-            { symbol: "BHARTIARTL", name: "Bharti Airtel Ltd.", sector: "Telecom", type: "NSE" },
-            { symbol: "ITC", name: "ITC Ltd.", sector: "FMCG", type: "NSE" },
-            { symbol: "KOTAKBANK", name: "Kotak Mahindra Bank Ltd.", sector: "Banking", type: "NSE" },
-            { symbol: "LT", name: "Larsen & Toubro Ltd.", sector: "Infrastructure", type: "NSE" },
-            { symbol: "AXISBANK", name: "Axis Bank Ltd.", sector: "Banking", type: "NSE" },
-            { symbol: "ASIANPAINT", name: "Asian Paints Ltd.", sector: "Consumer", type: "NSE" },
-            { symbol: "MARUTI", name: "Maruti Suzuki India Ltd.", sector: "Auto", type: "NSE" },
-            { symbol: "SUNPHARMA", name: "Sun Pharmaceutical Industries", sector: "Pharma", type: "NSE" },
-            { symbol: "TATASTEEL", name: "Tata Steel Ltd.", sector: "Metal", type: "NSE" },
-            { symbol: "TITAN", name: "Titan Company Ltd.", sector: "Consumer", type: "NSE" },
-            { symbol: "NTPC", name: "NTPC Ltd.", sector: "Energy", type: "NSE" },
-            { symbol: "POWERGRID", name: "Power Grid Corporation", sector: "Energy", type: "NSE" },
-            { symbol: "BTCUSDT", name: "Bitcoin / TetherUS", sector: "Crypto", type: "Crypto" },
-            { symbol: "ETHUSDT", name: "Ethereum / TetherUS", sector: "Crypto", type: "Crypto" },
-            { symbol: "SOLUSDT", name: "Solana / TetherUS", sector: "Crypto", type: "Crypto" },
-            { symbol: "XRPUSDT", name: "XRP / TetherUS", sector: "Crypto", type: "Crypto" },
-            { symbol: "BNBUSDT", name: "Binance Coin / TetherUS", sector: "Crypto", type: "Crypto" },
-            { symbol: "ADAUSDT", name: "Cardano / TetherUS", sector: "Crypto", type: "Crypto" },
-            { symbol: "DOGEUSDT", name: "Dogecoin / TetherUS", sector: "Crypto", type: "Crypto" }
-        ];
+<section id="new" class="screen">
+<form id="tradeForm">
+<div class="grid">
+  <div class="card span-12">
+    <div class="trade-head"><div><h2 id="formTitle">Step 1 — Pre-trade validation</h2><div class="muted">Do not enter the market just to complete the form. A failed setup should become a NO TRADE record.</div></div><span id="setupGate" class="badge warn">Validation required</span></div>
+  </div>
+  <div class="card span-6">
+    <h2>1. Market context</h2>
+    <div class="row">
+      <div class="field"><label>Date & time</label><input id="tDate" type="datetime-local" required></div>
+      <div class="field"><label>Trade type</label><select id="tType"><option>Forward / Demo</option><option>Backtest</option><option>Live</option></select></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Instrument / pair</label><input id="tInstrument" list="instruments" placeholder="e.g. XAUUSD" required></div>
+      <div class="field"><label>Session</label><select id="tSession"><option>Asia</option><option>London</option><option>New York</option><option>London + New York</option><option>Other</option></select></div>
+    </div>
+    <datalist id="instruments"><option>XAUUSD</option><option>NIFTY</option><option>BANKNIFTY</option><option>Other</option></datalist>
+    <div class="row">
+      <div class="field"><label>Day of week</label><input id="tDay" readonly></div>
+      <div class="field"><label>Higher-timeframe bias</label><select id="tBias"><option>Neutral</option><option>Bullish</option><option>Bearish</option></select></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>HTF location</label><select id="tLocation"><option>Mid-range</option><option>Premium</option><option>Discount</option><option>Not applicable</option></select></div>
+      <div class="field"><label>Market condition</label><select id="tCondition"><option>Clean range</option><option>Messy / unclear</option><option>Trending</option><option>Choppy</option><option>Other</option></select></div>
+    </div>
+    <div class="field"><label>News / volatility environment</label><select id="tNews"><option>Normal</option><option>High-impact news nearby</option><option>Post-news volatility</option><option>Unusually low volatility</option></select></div>
+  </div>
 
-        // IndexedDB Local Storage Setup
-        const DB_NAME = "cls_trading_journal_db";
-        const STORE_NAME = "trades";
-        let db = null;
+  <div class="card span-6">
+    <h2>2. Setup validation</h2>
+    <div class="small" style="margin-bottom:10px">Default checklist follows the supplied lecturer material. You can change it later in Settings.</div>
+    <div id="checklist"></div>
+    <div class="row">
+      <div class="field"><label>Setup model</label><input id="tSetup" value="CLS Model 1"></div>
+      <div class="field"><label>Setup grade</label><select id="tGrade"><option>A+</option><option>A</option><option>B</option><option>C</option><option>NO TRADE</option></select></div>
+    </div>
+    <div id="gateMessage" class="callout warn">Complete the checklist. The app will show whether the setup passes the minimum process gate.</div>
+  </div>
 
-        function initDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, 1);
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => {
-                    db = request.result;
-                    resolve(db);
-                };
-                request.onupgradeneeded = (event) => {
-                    const database = event.target.result;
-                    if (!database.objectStoreNames.contains(STORE_NAME)) {
-                        database.createObjectStore(STORE_NAME, { keyPath: "id" });
-                    }
-                };
-            });
-        }
+  <div class="card span-12">
+    <h2>3. Trade plan</h2>
+    <div class="row row3">
+      <div class="field"><label>Direction</label><select id="tDirection"><option>Long</option><option>Short</option></select></div>
+      <div class="field"><label>Entry price</label><input id="tEntry" type="number" step="any" inputmode="decimal"></div>
+      <div class="field"><label>Stop-loss</label><input id="tSL" type="number" step="any" inputmode="decimal"></div>
+    </div>
+    <div class="row row3">
+      <div class="field"><label>Target</label><input id="tTP" type="number" step="any" inputmode="decimal"></div>
+      <div class="field"><label>Planned risk (R)</label><input id="tRiskR" type="number" step="any" value="1" min="0"></div>
+      <div class="field"><label>Calculated planned R:R</label><input id="tRR" readonly></div>
+    </div>
+    <div class="field"><label>Why does this trade qualify?</label><textarea id="tReason" placeholder="State the mechanical reason, not how attractive the chart looks."></textarea></div>
+  </div>
 
-        async function getAllTrades() {
-            if (!db) await initDB();
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(STORE_NAME, "readonly");
-                const store = transaction.objectStore(STORE_NAME);
-                const request = store.getAll();
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
-        }
+  <div class="card span-12">
+    <h2>4. Before-trade psychology</h2>
+    <div class="row">
+      <div class="field"><label>Primary emotion</label><select id="tEmotion"><option>Calm</option><option>Confident</option><option>Fearful</option><option>FOMO</option><option>Greedy</option><option>Uncertain</option><option>Frustrated</option><option>Revenge</option><option>Bored</option></select></div>
+      <div class="field"><label>Confidence (1–5)</label><input id="tConfidence" type="number" min="1" max="5" value="3"></div>
+    </div>
+    <div class="field"><label>What am I expecting, and what would invalidate it?</label><textarea id="tMindset"></textarea></div>
+  </div>
 
-        async function saveTradeToDB(trade) {
-            if (!db) await initDB();
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(STORE_NAME, "readwrite");
-                const store = transaction.objectStore(STORE_NAME);
-                const request = store.put(trade);
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
-        }
+  <div class="card span-12">
+    <h2>5. Screenshot</h2>
+    <div class="field"><label>Before-trade chart screenshot</label><input id="tBeforeShot" type="file" accept="image/*"></div>
+    <div class="small">Screenshots are kept on this device/browser in V1. Export your backup regularly.</div>
+    <div class="actions end" style="margin-top:14px">
+      <button type="button" class="btn secondary" onclick="cancelTrade()">Cancel</button>
+      <button type="button" class="btn ghost" onclick="saveNoTrade()">Save as NO TRADE</button>
+      <button type="submit" class="btn primary">Pass gate & save planned trade</button>
+    </div>
+  </div>
+</div>
+</form>
+</section>
 
-        async function clearDBStore() {
-            if (!db) await initDB();
-            return new Promise((resolve, reject) => {
-                const transaction = db.transaction(STORE_NAME, "readwrite");
-                const store = transaction.objectStore(STORE_NAME);
-                const request = store.clear();
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
-        }
+<section id="trades" class="screen">
+<div class="grid"><div class="card span-12">
+<h2>Trade log</h2>
+<div class="toolbar">
+<input id="filterSearch" placeholder="Search instrument, setup, notes…">
+<select id="filterStatus"><option value="">All status</option><option>Planned</option><option>Open</option><option>Closed</option><option>NO TRADE</option></select>
+<select id="filterResult"><option value="">All results</option><option>Win</option><option>Loss</option><option>Breakeven</option></select>
+<button class="btn secondary" onclick="renderTrades()">Refresh</button>
+</div>
+<div id="tradeTable"></div>
+</div></div>
+</section>
 
-        // UI Tabs Management
-        function openTab(tabId) {
-            document.getElementById('journalTab').classList.add('hidden');
-            document.getElementById('settingsTab').classList.add('hidden');
-            document.getElementById('btnJournalTab').className = 'px-4 py-2 rounded-lg font-medium text-sm transition-colors text-slate-400 hover:text-white';
-            document.getElementById('btnSettingsTab').className = 'px-4 py-2 rounded-lg font-medium text-sm transition-colors text-slate-400 hover:text-white';
+<section id="review" class="screen">
+<div class="grid">
+<div class="card span-12"><h2>Saturday weekly review</h2><p class="muted">The review questions below are taken directly from the supplied lecturer framework. Use one variable at a time when changing your process.</p>
+<div class="row">
+<div class="field"><label>Week ending</label><input id="rWeek" type="date"></div>
+<div class="field"><label>One execution error to remove next week</label><input id="rOneRule"></div>
+</div>
+<div id="reviewStats" class="kpis"></div>
+<div class="review-q"><b>1. Which trades followed the model exactly?</b><textarea id="r1"></textarea></div>
+<div class="review-q"><b>2. Which rule did I negotiate with?</b><textarea id="r2"></textarea></div>
+<div class="review-q"><b>3. Which market condition performed best?</b><textarea id="r3"></textarea></div>
+<div class="review-q"><b>4. Did I stop when my daily limit was reached?</b><select id="r4"><option>Yes</option><option>No</option><option>Not applicable</option></select></div>
+<div class="review-q"><b>5. What is the one execution error I will remove next week?</b><textarea id="r5"></textarea></div>
+<div class="actions end"><button class="btn primary" onclick="saveReview()">Save weekly review</button></div>
+</div>
+<div class="card span-12"><h2>Past reviews</h2><div id="pastReviews"></div></div>
+</div>
+</section>
 
-            document.getElementById(tabId).classList.remove('hidden');
-            if(tabId === 'journalTab') {
-                document.getElementById('btnJournalTab').className = 'px-4 py-2 rounded-lg font-medium text-sm transition-colors bg-emerald-600 text-white';
-                loadTradesUI();
-            } else {
-                document.getElementById('btnSettingsTab').className = 'px-4 py-2 rounded-lg font-medium text-sm transition-colors bg-emerald-600 text-white';
-                loadSettings();
-            }
-        }
+<section id="settings" class="screen">
+<div class="grid">
+<div class="card span-6"><h2>Process settings</h2>
+<div class="field"><label>Minimum setup checklist items required</label><input id="sMin" type="number" min="1" max="20"></div>
+<div class="field"><label>Daily loss limit (R) — optional</label><input id="sDaily" type="number" step="any" min="0" placeholder="Leave blank if not defined"></div>
+<div class="field"><label>Fixed risk per trade (R) — optional</label><input id="sRisk" type="number" step="any" min="0"></div>
+<button class="btn primary" onclick="saveSettings()">Save settings</button>
+<div class="card span-12" style="margin-top:14px"><h2>Cloud backup & screenshots</h2>
+<p class="small">V2 keeps journal data local-first, stores screenshots as files instead of base64 inside the journal, and can optionally back up the journal to your private Supabase account. Your GitHub repository never receives journal records or screenshots.</p>
+<div class="row">
+<div class="field"><label>Supabase Project URL</label><input id="sSupabaseUrl" placeholder="https://xxxx.supabase.co"></div>
+<div class="field"><label>Supabase Publishable/Anon Key</label><input id="sSupabaseKey" type="password" placeholder="sb_publishable_… or anon key"></div>
+</div>
+<div class="row">
+<div class="field"><label>Email</label><input id="cloudEmail" type="email" autocomplete="email"></div>
+<div class="field"><label>Password</label><input id="cloudPassword" type="password" autocomplete="current-password"></div>
+</div>
+<div class="actions"><button class="btn secondary" onclick="cloudSignUp()">Create account</button><button class="btn secondary" onclick="cloudSignIn()">Sign in</button><button class="btn secondary" onclick="cloudSignOut()">Sign out</button><button class="btn primary" onclick="cloudSync()">Backup / Sync now</button><button class="btn secondary" onclick="cloudRestore()">Restore from cloud</button></div>
+<div id="cloudStatus" class="callout" style="margin-top:10px">Cloud backup is not configured.</div>
+</div>
+</div>
+<div class="card span-6"><h2>Data safety</h2><p class="muted">This build is local-first. Nothing is uploaded by this app. Use export/import to move or back up your journal.</p>
+<div class="actions">
+<button class="btn secondary" onclick="exportData()">Export JSON backup</button>
+<button class="btn secondary" onclick="exportCSV()">Export CSV</button>
+<label class="btn ghost" style="display:inline-flex;align-items:center;justify-content:center">Import JSON <input id="importFile" type="file" accept="application/json" hidden></label>
+<button class="btn danger" onclick="wipeData()">Delete all journal data</button>
+</div>
+</div>
+<div class="card span-12"><h2>Default checklist</h2><div id="settingsChecklist"></div></div>
+</div>
+</section>
 
-        // Modal Controls
-        function openNewTradeModal() {
-            document.getElementById('tradeForm').reset();
-            document.getElementById('tradeId').value = 'trade_' + Date.now();
-            document.getElementById('modalTitle').innerText = 'New CLS Trade Entry';
-            document.getElementById('tradeModal').classList.remove('hidden');
-        }
+<footer>Local-first journal • Keep regular backups • Trading outcomes are not guaranteed</footer>
+</div>
 
-        function closeNewTradeModal() {
-            document.getElementById('tradeModal').classList.add('hidden');
-        }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const KEY="trade_journal_v1";
+const defaults={
+ settings:{minChecklist:5,dailyLimitR:"",fixedRiskR:1},
+ checklist:[
+  "Clear range identified",
+  "Liquidity identified",
+  "Manipulation occurred",
+  "Displacement occurred",
+  "Confirmation occurred",
+  "Entry location is valid",
+  "Invalidation is clearly defined",
+  "Target is clearly defined",
+  "Risk is within my allowed limit"
+ ],
+ trades:[], reviews:[]
+};
+let db=load();
+let currentEdit=null;
+const CLOUD_KEY="tradingJournalCloudConfig";
+let supabaseClient=null;
+let cloudSession=null;
 
-        // Trade Form Submission
-        async function handleTradeSubmit(e) {
-            e.preventDefault();
-            const trade = {
-                id: document.getElementById('tradeId').value,
-                asset: document.getElementById('assetSearch').value,
-                lifecycle: document.getElementById('tradeLifecycle').value,
-                modelType: document.getElementById('modelType').value,
-                entryPrice: parseFloat(document.getElementById('entryPrice').value),
-                stopLoss: parseFloat(document.getElementById('stopLoss').value),
-                checklists: {
-                    ciod: document.getElementById('check_ciod').checked,
-                    session: document.getElementById('check_session').checked,
-                    trc: document.getElementById('check_trc').checked,
-                    manipulation: document.getElementById('check_manipulation').checked,
-                    htf: document.getElementById('check_htf').checked
-                },
-                notes: document.getElementById('tradeNotes').value,
-                updatedAt: new Date().toISOString()
-            };
+function cloudConfig(){try{return JSON.parse(localStorage.getItem(CLOUD_KEY))||{url:"",key:""}}catch(e){return {url:"",key:""}}}
+function saveCloudConfig(){localStorage.setItem(CLOUD_KEY,JSON.stringify({url:$('sSupabaseUrl').value.trim(),key:$('sSupabaseKey').value.trim()})); initCloud();}
+function initCloud(){const c=cloudConfig(); if($('sSupabaseUrl')) $('sSupabaseUrl').value=c.url||""; if($('sSupabaseKey')) $('sSupabaseKey').value=c.key||""; if(!c.url||!c.key||!window.supabase){supabaseClient=null;setCloudStatus("Cloud backup is not configured.","warn");return} try{supabaseClient=window.supabase.createClient(c.url,c.key); supabaseClient.auth.getSession().then(({data})=>{cloudSession=data.session;setCloudStatus(cloudSession?`Signed in as ${cloudSession.user.email}`:"Configured — sign in to enable backup.",cloudSession?"good":"warn")}); supabaseClient.auth.onAuthStateChange((_e,session)=>{cloudSession=session;setCloudStatus(session?`Signed in as ${session.user.email}`:"Signed out.",session?"good":"warn")});}catch(e){supabaseClient=null;setCloudStatus("Supabase configuration is invalid.","bad")}}
+function setCloudStatus(msg,kind=""){let el=$('cloudStatus');if(!el)return;el.className="callout "+kind;el.textContent=msg}
 
-            await saveTradeToDB(trade);
-            closeNewTradeModal();
-            loadTradesUI();
-        }
 
-        // Render Trades on Dashboard
-        async function loadTradesUI() {
-            const trades = await getAllTrades();
-            const container = document.getElementById('tradesContainer');
-            
-            if (trades.length === 0) {
-                container.innerHTML = `
-                    <div class="col-span-full text-center py-12 text-slate-500 border border-dashed border-slate-800 rounded-xl">
-                        No trades logged yet. Click "+ New CLS Trade" to begin.
-                    </div>
-                `;
-                return;
-            }
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||structuredClone(defaults)}catch(e){return structuredClone(defaults)}}
+function persist(){localStorage.setItem(KEY,JSON.stringify(db)); document.getElementById("storageStatus").textContent="Saved locally"; db.meta=db.meta||{}; db.meta.updatedAt=new Date().toISOString(); localStorage.setItem(KEY,JSON.stringify(db));}
+const IDB_NAME="tradingJournalFiles"; const IDB_STORE="screenshots";
+function idb(){return new Promise((resolve,reject)=>{const r=indexedDB.open(IDB_NAME,1);r.onupgradeneeded=()=>{if(!r.result.objectStoreNames.contains(IDB_STORE))r.result.createObjectStore(IDB_STORE)};r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+async function putShot(key,blob){const d=await idb();return new Promise((res,rej)=>{const tx=d.transaction(IDB_STORE,"readwrite");tx.objectStore(IDB_STORE).put(blob,key);tx.oncomplete=()=>res(key);tx.onerror=()=>rej(tx.error)})}
+async function getShot(key){if(!key)return null;const d=await idb();return new Promise((res,rej)=>{const tx=d.transaction(IDB_STORE,"readonly");const r=tx.objectStore(IDB_STORE).get(key);r.onsuccess=()=>res(r.result||null);r.onerror=()=>rej(r.error)})}
+async function delShot(key){if(!key)return;const d=await idb();return new Promise((res,rej)=>{const tx=d.transaction(IDB_STORE,"readwrite");tx.objectStore(IDB_STORE).delete(key);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}
+async function fileToStoredShot(file,tradeId,kind){if(!file)return null;const key=`${tradeId}-${kind}`;await putShot(key,file);return {localKey:key,name:file.name,type:file.type,size:file.size,createdAt:new Date().toISOString()}}
+async function migrateLegacyScreenshots(){let changed=false;for(const t of db.trades||[]){for(const kind of ["before","after"]){const field=kind==="before"?"screenshotBefore":"screenshotAfter";const v=t[field];if(typeof v==="string"&&v.startsWith("data:")){try{const blob=await (await fetch(v)).blob();const ref=await fileToStoredShot(blob,t.id,kind);t[field]=ref;changed=true}catch(e){console.warn("Screenshot migration failed",t.id,kind,e)}}}}if(changed)persist()}
+async function hydrateCloudScreenshots(){for(const t of db.trades||[]){for(const kind of ["before","after"]){const field=kind==="before"?"screenshotBefore":"screenshotAfter";const ref=t[field];if(!ref?.storagePath||ref.localKey&&await getShot(ref.localKey))continue;try{const {data,error}=await supabaseClient.storage.from("journal-screenshots").download(ref.storagePath);if(error)throw error;const key=`${t.id}-${kind}`;await putShot(key,data);ref.localKey=key}catch(e){console.warn("Screenshot restore failed",ref.storagePath,e)}}}persist()}
 
-            container.innerHTML = trades.map(t => `
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 hover:border-slate-700 transition-all">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${t.modelType}</span>
-                            <h3 class="text-lg font-bold text-white mt-1">${t.asset}</h3>
-                        </div>
-                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">${t.lifecycle}</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 text-xs text-slate-400 border-t border-b border-slate-800 py-2">
-                        <div>Entry: <span class="text-white font-semibold">${t.entryPrice}</span></div>
-                        <div>Stop Loss: <span class="text-white font-semibold">${t.stopLoss}</span></div>
-                    </div>
-                    <p class="text-xs text-slate-300 line-clamp-2">${t.notes || 'No notes provided.'}</p>
-                    <div class="text-[10px] text-slate-500 pt-1">Updated: ${new Date(t.updatedAt).toLocaleString()}</div>
-                </div>
-            `).join('');
-        }
 
-        // Autocomplete Logic
-        const searchInput = document.getElementById('assetSearch');
-        const resultsContainer = document.getElementById('autocompleteResults');
+function $(id){return document.getElementById(id)}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function money(n){return Number.isFinite(n)?n.toFixed(2):"—"}
+function fmtDate(x){if(!x)return "—";return new Date(x).toLocaleString()}
+function todayISO(){return new Date().toISOString().slice(0,10)}
+function uid(){return Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8)}
 
-        searchInput.addEventListener('input', function(e) {
-            const query = e.target.value.toUpperCase().trim();
-            if (!query) {
-                resultsContainer.classList.add('hidden');
-                return;
-            }
+document.querySelectorAll("#nav button").forEach(b=>b.onclick=()=>showScreen(b.dataset.screen));
+function showScreen(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll("#nav button").forEach(x=>x.classList.toggle("active",x.dataset.screen===id));if(id==="dashboard")renderDashboard();if(id==="trades")renderTrades();if(id==="review")renderReviews();if(id==="settings")renderSettings()}
+function startNewTrade(){currentEdit=null;showScreen("new");resetForm();renderChecklist();$("tDate").value=new Date().toISOString().slice(0,16)}
+function cancelTrade(){showScreen("dashboard")}
+function resetForm(){document.getElementById("tradeForm").reset();$("tSetup").value="CLS Model 1";$("tGrade").value="A+";$("tRiskR").value=db.settings.fixedRiskR||1;$("tConfidence").value=3;$("tRR").value="";$("tDay").value="";$("setupGate").className="badge warn";$("setupGate").textContent="Validation required";$("gateMessage").className="callout warn";$("gateMessage").textContent="Complete the checklist. The app will show whether the setup passes the minimum process gate."}
+function renderChecklist(){let el=$("checklist");el.innerHTML=db.checklist.map((x,i)=>`<label class="check"><input type="checkbox" data-check="${i}" onchange="updateGate()"><span>${esc(x)}</span></label>`).join("");updateGate();renderSettings()}
+function updateGate(){let boxes=[...document.querySelectorAll("#checklist input")];let n=boxes.filter(x=>x.checked).length;let min=Math.min(db.settings.minChecklist,boxes.length);let pass=n>=min;
+$("setupGate").className="badge "+(pass?"good":"warn");$("setupGate").textContent=pass?`Gate passed: ${n}/${boxes.length}`:`Gate not passed: ${n}/${boxes.length}`;
+$("gateMessage").className="callout "+(pass?"":"warn");$("gateMessage").textContent=pass?`Process gate passed. You may save this as a planned trade.`:`Need at least ${min} checklist items. If conditions are absent, inactivity is correct execution.`;
+}
+$("tDate").addEventListener("change",()=>{let d=new Date($("tDate").value);$("tDay").value=isNaN(d)?"":d.toLocaleDateString(undefined,{weekday:"long"})});
+["tEntry","tSL","tTP","tDirection"].forEach(id=>$(id).addEventListener("input",calcRR));
+function calcRR(){let e=+$("tEntry").value,sl=+$("tSL").value,tp=+$("tTP").value,dir=$("tDirection").value;if(!(e&&sl&&tp)){$("tRR").value="";return}let risk=Math.abs(e-sl),reward=dir==="Long"?tp-e:e-tp;$("tRR").value=reward>0?(reward/risk).toFixed(2):"Invalid target"}
+function readChecklist(){return [...document.querySelectorAll("#checklist input")].map((x,i)=>({label:db.checklist[i],checked:x.checked}))}
+async function fileToDataURL(file){return new Promise((res,rej)=>{if(!file)return res("");let r=new FileReader;r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)})}
+async function buildTrade(status){let checks=readChecklist(),passed=checks.filter(x=>x.checked).length>=Math.min(db.settings.minChecklist,checks.length);
+let e=+$("tEntry").value,sl=+$("tSL").value,tp=+$("tTP").value;
+if(status!=="NO TRADE" && !passed){alert("The setup gate has not passed. Either complete the process or explicitly save a NO TRADE.");return null}
+if(status!=="NO TRADE" && (!e||!sl||!tp)){alert("Entry, stop-loss and target are required for a planned trade.");return null}
+let id=uid(); let shot=await fileToStoredShot($("tBeforeShot").files[0],id,"before");
+return {id,createdAt:new Date().toISOString(),status,result:"",instrument:$("tInstrument").value.trim(),tradeType:$("tType").value,session:$("tSession").value,day:$("tDay").value,bias:$("tBias").value,location:$("tLocation").value,condition:$("tCondition").value,news:$("tNews").value,setup:$("tSetup").value.trim(),grade:status==="NO TRADE"?"NO TRADE":$("tGrade").value,direction:$("tDirection").value,entry:e||null,sl:sl||null,target:tp||null,plannedRR:$("tRR").value||"",riskR:+$("tRiskR").value||0,reason:$("tReason").value,mindset:$("tMindset").value,emotion:$("tEmotion").value,confidence:+$("tConfidence").value,checks, screenshotBefore:shot, screenshotAfter:"",exit:null,closedAt:null,psychology:{duringEmotion:"",urgeToInterfere:"",notes:""},execution:{confirmation:null,enteredManipulation:null,movedStop:null,closedEarly:null,extraTrade:null,planBreak:false},learning:{doneWell:"",doneWrong:"",nextTime:""},executionScore:null,setupScore:null,psychologyScore:null,overallScore:null}}
+async function saveNoTrade(){let t=await buildTrade("NO TRADE");if(!t)return;t.status="NO TRADE";t.reason=t.reason||"Setup did not meet the process gate.";db.trades.unshift(t);persist();alert("NO TRADE saved. This is valuable evidence.");showScreen("trades");renderTrades()}
+$("tradeForm").addEventListener("submit",async e=>{e.preventDefault();let t=await buildTrade("Planned");if(!t)return;db.trades.unshift(t);persist();alert("Planned trade saved. Open it from Trade Log when the trade starts or ends.");showScreen("trades");renderTrades()});
 
-            const matches = ASSET_DATABASE.filter(item => 
-                item.symbol.includes(query) || item.name.toUpperCase().includes(query)
-            );
+function renderDashboard(){let c=db.trades.filter(t=>t.status==="Closed"),wins=c.filter(t=>t.result==="Win"),loss=c.filter(t=>t.result==="Loss");let rs=c.map(t=>Number(t.realizedR)).filter(Number.isFinite);
+let winrate=c.length?wins.length/c.length*100:NaN,expect=rs.length?rs.reduce((a,b)=>a+b,0)/rs.length:NaN;let eq=0,peak=0,maxDD=0;rs.forEach(r=>{eq+=r;peak=Math.max(peak,eq);maxDD=Math.min(maxDD,eq-peak)});
+$("kTrades").textContent=c.length;$("kWin").textContent=Number.isFinite(winrate)?winrate.toFixed(1)+"%":"—";$("kExpect").textContent=Number.isFinite(expect)?expect.toFixed(2)+"R":"—";$("kDD").textContent=rs.length?maxDD.toFixed(2)+"R":"—";
+$("modelStats").innerHTML=`<div class="row"><div class="stat"><div class="n">${c.filter(t=>t.grade==="A+"||t.grade==="A").length}</div><div class="l">A+/A closed trades</div></div><div class="stat"><div class="n">${avgRR(c)}</div><div class="l">Average planned R:R</div></div></div><div class="small" style="margin-top:10px">Expectancy is the average realized R per closed trade. More observations make it more meaningful.</div>`;
+let perfect=c.filter(t=>t.execution?.planBreak===false),broken=c.filter(t=>t.execution?.planBreak===true);$("execStats").innerHTML=`<div class="row"><div class="stat"><div class="n">${perfect.length}</div><div class="l">No recorded plan break</div></div><div class="stat"><div class="n">${broken.length}</div><div class="l">Plan-break trades</div></div></div><div class="small" style="margin-top:10px">A winning trade can still be poor execution; a losing trade can still be excellent execution.</div>`;
+$("ddStats").innerHTML=`<p><b>Consecutive losses:</b> ${maxStreak(c,"Loss")}</p><p><b>Consecutive wins:</b> ${maxStreak(c,"Win")}</p><p><b>Closed trades:</b> ${c.length}</p>`;
+let recent=db.trades.slice(0,8);$("recent").innerHTML=recent.length?`<div class="tablewrap"><table><thead><tr><th>Date</th><th>Instrument</th><th>Status</th><th>Result</th><th>R</th><th>Grade</th></tr></thead><tbody>${recent.map(row).join("")}</tbody></table></div>`:`<div class="empty">No trades yet. Start with a process-validated trade or a NO TRADE observation.</div>`}
+function avgRR(c){let x=c.map(t=>+t.plannedRR).filter(Number.isFinite);return x.length?(x.reduce((a,b)=>a+b,0)/x.length).toFixed(2):"—"}
+function maxStreak(c,val){let m=0,n=0;c.slice().reverse().forEach(t=>{if(t.result===val){n++;m=Math.max(m,n)}else n=0});return m}
+function row(t){let cls=t.result==="Win"?"good":t.result==="Loss"?"bad":t.status==="NO TRADE"?"warn":"";return `<tr><td>${esc(fmtDate(t.createdAt))}</td><td>${esc(t.instrument)}</td><td><span class="badge ${t.status==="Closed"?"good":t.status==="NO TRADE"?"warn":"blue"}">${esc(t.status)}</span></td><td><span class="badge ${cls}">${esc(t.result||"—")}</span></td><td>${esc(t.realizedR??"—")}</td><td>${esc(t.grade)}</td></tr>`}
 
-            if (matches.length === 0) {
-                resultsContainer.classList.add('hidden');
-                return;
-            }
+function renderTrades(){let q=$("filterSearch").value.toLowerCase(),s=$("filterStatus").value,r=$("filterResult").value;let arr=db.trades.filter(t=>(!s||t.status===s)&&(!r||t.result===r)&&(!q||JSON.stringify(t).toLowerCase().includes(q)));
+$("tradeTable").innerHTML=arr.length?`<div class="tablewrap"><table><thead><tr><th>Date</th><th>Instrument</th><th>Setup</th><th>Status</th><th>Result</th><th>R</th><th>Action</th></tr></thead><tbody>${arr.map(t=>`<tr><td>${esc(fmtDate(t.createdAt))}</td><td>${esc(t.instrument)}</td><td>${esc(t.setup)}</td><td>${esc(t.status)}</td><td>${esc(t.result||"—")}</td><td>${esc(t.realizedR??"—")}</td><td><button class="btn secondary" onclick="openTrade('${t.id}')">Open</button></td></tr>`).join("")}</tbody></table></div>`:`<div class="empty">No matching records.</div>`}
+$("filterSearch").oninput=renderTrades;$("filterStatus").onchange=renderTrades;$("filterResult").onchange=renderTrades;
 
-            resultsContainer.innerHTML = matches.map(m => `
-                <div class="p-3 hover:bg-slate-800 cursor-pointer flex justify-between items-center text-sm" onclick="selectAsset('${m.symbol}')">
-                    <span class="font-bold text-white">${m.symbol}</span>
-                    <span class="text-xs text-slate-400">${m.name} (${m.sector})</span>
-                </div>
-            `).join('');
-            
-            resultsContainer.classList.remove('hidden');
-        });
+function openTrade(id){let t=db.trades.find(x=>x.id===id);if(!t)return;
+if(t.status==="Closed"||t.status==="NO TRADE"){openReviewTrade(t);return}
+let exit=prompt("Exit price (leave blank to keep trade open):",t.exit??"");if(exit!==null&&exit!==""){t.exit=+exit;t.closedAt=new Date().toISOString();let risk=Math.abs(t.entry-t.sl);let reward=t.direction==="Long"?t.exit-t.entry:t.entry-t.exit;t.realizedR=risk?+(reward/risk).toFixed(4):0;t.result=t.realizedR>0.05?"Win":t.realizedR<-0.05?"Loss":"Breakeven";t.status="Closed";persist();openReviewTrade(t)}else{alert("Trade remains Planned. Use Open again after the trade is complete.");}}
+function openReviewTrade(t){showScreen("new");document.querySelector("#formTitle").textContent=`Trade review — ${t.instrument} ${t.result||t.status}`;
+$("tradeForm").style.display="none";let sec=document.getElementById("new");sec.innerHTML=`<div class="grid">
+<div class="card span-12"><div class="trade-head"><div><h2>${esc(t.instrument)} · ${esc(t.setup)}</h2><div class="muted">${esc(fmtDate(t.createdAt))} · ${esc(t.direction)} · ${esc(t.session)}</div></div><span class="badge ${t.result==="Win"?"good":t.result==="Loss"?"bad":"warn"}">${esc(t.result||t.status)}</span></div></div>
+<div class="card span-6"><h2>Plan vs outcome</h2><p><b>Entry:</b> ${esc(t.entry??"—")} &nbsp; <b>SL:</b> ${esc(t.sl??"—")} &nbsp; <b>TP:</b> ${esc(t.target??"—")}</p><p><b>Planned R:R:</b> ${esc(t.plannedRR||"—")} &nbsp; <b>Realized R:</b> ${esc(t.realizedR??"—")}</p><p><b>Reason:</b> ${esc(t.reason||"—")}</p></div>
+<div class="card span-6"><h2>Execution audit</h2>${execForm(t)}</div>
+<div class="card span-12"><h2>Psychology & learning</h2>${learningForm(t)}</div>
+<div class="card span-12"><h2>Post-trade screenshot</h2><input id="afterShot" type="file" accept="image/*"><div class="actions end" style="margin-top:12px"><button class="btn secondary" onclick="showScreen('trades');renderTrades()">Back</button><button class="btn primary" onclick="saveReviewTrade('${t.id}')">Save review</button></div></div>
+</div>`}
+function execForm(t){let e=t.execution||{};return `<label>Did you wait for confirmation? <select id="xConfirmation"><option ${e.confirmation===true?"selected":""}>Yes</option><option ${e.confirmation===false?"selected":""}>No</option></select></label><label>Did you enter during manipulation? <select id="xManip"><option ${e.enteredManipulation===true?"selected":""}>Yes</option><option ${e.enteredManipulation===false?"selected":""}>No</option></select></label><label>Did you move the stop? <select id="xStop"><option ${e.movedStop===true?"selected":""}>Yes</option><option ${e.movedStop===false?"selected":""}>No</option></select></label><label>Did you close early? <select id="xEarly"><option ${e.closedEarly===true?"selected":""}>Yes</option><option ${e.closedEarly===false?"selected":""}>No</option></select></label><label>Did you take a second/third trade outside plan? <select id="xExtra"><option ${e.extraTrade===true?"selected":""}>Yes</option><option ${e.extraTrade===false?"selected":""}>No</option></select></label>`}
+function learningForm(t){let l=t.learning||{},p=t.psychology||{};return `<div class="row"><div class="field"><label>Emotion during trade</label><input id="xEmotion" value="${esc(p.duringEmotion)}"></div><div class="field"><label>Urge to interfere?</label><select id="xUrge"><option ${p.urgeToInterfere==="Yes"?"selected":""}>Yes</option><option ${p.urgeToInterfere==="No"?"selected":""}>No</option></select></div></div><div class="field"><label>What did I do well?</label><textarea id="xGood">${esc(l.doneWell)}</textarea></div><div class="field"><label>What did I do wrong?</label><textarea id="xWrong">${esc(l.doneWrong)}</textarea></div><div class="field"><label>What will I do differently next time?</label><textarea id="xNext">${esc(l.nextTime)}</textarea></div><div class="row row3"><div class="field"><label>Setup quality 1–10</label><input id="xSetupScore" type="number" min="1" max="10" value="${esc(t.setupScore??"")}"></div><div class="field"><label>Execution quality 1–10</label><input id="xExecScore" type="number" min="1" max="10" value="${esc(t.executionScore??"")}"></div><div class="field"><label>Psychology 1–10</label><input id="xPsychScore" type="number" min="1" max="10" value="${esc(t.psychologyScore??"")}"></div></div>`}
+async function saveReviewTrade(id){let t=db.trades.find(x=>x.id===id);if(!t)return;let yes=id=>$(id).value==="Yes";t.execution={confirmation:yes("xConfirmation"),enteredManipulation:yes("xManip"),movedStop:yes("xStop"),closedEarly:yes("xEarly"),extraTrade:yes("xExtra")};t.execution.planBreak=!t.execution.confirmation||t.execution.movedStop||t.execution.closedEarly||t.execution.extraTrade;t.psychology={duringEmotion:$("xEmotion").value,urgeToInterfere:$("xUrge").value,notes:""};t.learning={doneWell:$("xGood").value,doneWrong:$("xWrong").value,nextTime:$("xNext").value};t.setupScore=+$("xSetupScore").value||null;t.executionScore=+$("xExecScore").value||null;t.psychologyScore=+$("xPsychScore").value||null;t.overallScore=[t.setupScore,t.executionScore,t.psychologyScore].filter(Number.isFinite);t.overallScore=t.overallScore.length?+(t.overallScore.reduce((a,b)=>a+b,0)/t.overallScore.length).toFixed(1):null;
+let f=$("afterShot");if(f&&f.files[0])t.screenshotAfter=await fileToStoredShot(f.files[0],t.id,"after");persist();alert("Trade review saved.");showScreen("trades");renderTrades()}
 
-        window.selectAsset = function(symbol) {
-            searchInput.value = symbol;
-            resultsContainer.classList.add('hidden');
-        };
-
-        document.addEventListener('click', function(e) {
-            if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
-                resultsContainer.classList.add('hidden');
-            }
-        });
-
-        // Settings & Cloud Sync Management
-        function loadSettings() {
-            document.getElementById('supabaseUrl').value = localStorage.getItem('sb_url') || '';
-            document.getElementById('supabaseKey').value = localStorage.getItem('sb_key') || '';
-        }
-
-        function saveSupabaseConfig() {
-            const url = document.getElementById('supabaseUrl').value.trim();
-            const key = document.getElementById('supabaseKey').value.trim();
-            localStorage.setItem('sb_url', url);
-            localStorage.setItem('sb_key', key);
-            document.getElementById('syncStatus').innerText = "Credentials saved successfully.";
-        }
-
-        async function getSupabaseClient() {
-            const url = localStorage.getItem('sb_url');
-            const key = localStorage.getItem('sb_key');
-            if (!url || !key) {
-                throw new Error("Supabase URL and Key are not configured in settings.");
-            }
-            return window.supabase.createClient(url, key);
-        }
-
-        async function syncToCloud() {
-            const statusEl = document.getElementById('syncStatus');
-            try {
-                statusEl.innerText = "Syncing to Supabase...";
-                const client = await getSupabaseClient();
-                const trades = await getAllTrades();
-
-                if (!trades || trades.length === 0) {
-                    throw new Error("No trades found in local storage to sync.");
-                }
-
-                // Push payload snapshot
-                const payload = { version: 2, timestamp: new Date().toISOString(), trades };
-                
-                // For anonymous/simple user setup or authenticated session check
-                const { data: { user } } = await client.auth.getUser();
-                const userId = user ? user.id : 'anonymous_user';
-
-                const { error } = await client
-                    .from('journal_snapshots')
-                    .upsert({ user_id: userId, payload: payload, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-
-                if (error) throw error;
-                statusEl.innerText = "Backup complete successfully!";
-                statusEl.className = "text-xs text-center text-emerald-400 pt-2 font-semibold";
-            } catch (err) {
-                console.error(err);
-                statusEl.innerText = "Backup failed: " + err.message;
-                statusEl.className = "text-xs text-center text-red-400 pt-2 font-semibold";
-            }
-        }
-
-        async function restoreFromCloud() {
-            const statusEl = document.getElementById('syncStatus');
-            try {
-                statusEl.innerText = "Restoring from Supabase...";
-                const client = await getSupabaseClient();
-                const { data: { user } } = await client.auth.getUser();
-                const userId = user ? user.id : 'anonymous_user';
-
-                const { data, error } = await client
-                    .from('journal_snapshots')
-                    .select('payload')
-                    .eq('user_id', userId)
-                    .single();
-
-                if (error) throw error;
-                if (!data || !data.payload || !data.payload.trades) {
-                    throw new Error("No backup payload found in cloud.");
-                }
-
-                await clearDBStore();
-                for (const trade of data.payload.trades) {
-                    await saveTradeToDB(trade);
-                }
-
-                statusEl.innerText = "Restore complete! Reloading journal...";
-                statusEl.className = "text-xs text-center text-emerald-400 pt-2 font-semibold";
-                setTimeout(() => openTab('journalTab'), 1000);
-            } catch (err) {
-                console.error(err);
-                statusEl.innerText = "Restore failed: " + err.message;
-                statusEl.className = "text-xs text-center text-red-400 pt-2 font-semibold";
-            }
-        }
-
-        async function clearLocalData() {
-            if(confirm("Are you sure you want to clear all local trades?")) {
-                await clearDBStore();
-                loadTradesUI();
-                alert("Local storage cleared.");
-            }
-        }
-
-        // Initial Load
-        initDB().then(() => loadTradesUI());
-    </script>
+function renderReviews(){let c=db.trades.filter(t=>t.status==="Closed");$("rWeek").value=todayISO();$("reviewStats").innerHTML=`<div class="stat"><div class="n">${c.length}</div><div class="l">Closed trades total</div></div><div class="stat"><div class="n">${c.filter(t=>t.result==="Win").length}</div><div class="l">Wins</div></div><div class="stat"><div class="n">${c.filter(t=>t.result==="Loss").length}</div><div class="l">Losses</div></div><div class="stat"><div class="n">${c.length?(c.map(t=>+t.realizedR||0).reduce((a,b)=>a+b,0)).toFixed(2)+"R":"—"}</div><div class="l">Net realized R</div></div>`;
+$("pastReviews").innerHTML=db.reviews.length?db.reviews.map(r=>`<div class="card" style="margin-bottom:10px"><b>Week ending ${esc(r.week)}</b><p><b>One rule:</b> ${esc(r.oneRule)}</p><p>${esc(r.r1)}</p><p>${esc(r.r2)}</p><p>${esc(r.r3)}</p><p><b>Daily limit:</b> ${esc(r.r4)}</p><p>${esc(r.r5)}</p></div>`).join(""):"<div class='empty'>No weekly reviews saved.</div>"}
+function saveReview(){db.reviews.unshift({week:$("rWeek").value,oneRule:$("rOneRule").value,r1:$("r1").value,r2:$("r2").value,r3:$("r3").value,r4:$("r4").value,r5:$("r5").value,createdAt:new Date().toISOString()});persist();alert("Weekly review saved.");renderReviews()}
+async function cloudSignUp(){saveCloudConfig();if(!supabaseClient){alert("Enter Supabase URL and key first.");return}let email=$("cloudEmail").value.trim(),password=$("cloudPassword").value;if(!email||password.length<8){alert("Use a valid email and a password of at least 8 characters.");return}setCloudStatus("Creating account…");let {error}=await supabaseClient.auth.signUp({email,password});if(error){setCloudStatus(error.message,"bad");return}setCloudStatus("Account created. If email confirmation is enabled, confirm the email, then sign in.","good")}
+async function cloudSignIn(){saveCloudConfig();if(!supabaseClient){alert("Enter Supabase URL and key first.");return}let email=$("cloudEmail").value.trim(),password=$("cloudPassword").value;setCloudStatus("Signing in…");let {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){setCloudStatus(error.message,"bad");return}cloudSession=data.session;setCloudStatus(`Signed in as ${email}.`,"good")}
+async function cloudSignOut(){if(supabaseClient)await supabaseClient.auth.signOut();cloudSession=null;setCloudStatus("Signed out.","warn")}
+function cloudPayload(){let copy=structuredClone(db);delete copy.meta;copy.trades=copy.trades.map(t=>{let x=structuredClone(t);return x});return copy}
+async function uploadLocalShots(userId){for(const t of db.trades){for(const kind of ["before","after"]){const ref=t[kind==="before"?"screenshotBefore":"screenshotAfter"];if(!ref?.localKey||ref.storagePath)continue;const blob=await getShot(ref.localKey);if(!blob)continue;const path=`${userId}/${t.id}-${kind}-${Date.now()}.${(ref.type||"image/jpeg").split("/")[1]||"jpg"}`;let {error}=await supabaseClient.storage.from("journal-screenshots").upload(path,blob,{contentType:ref.type||blob.type||"image/jpeg",upsert:false});if(error && !String(error.message).toLowerCase().includes("already exists"))throw error;ref.storagePath=path;ref.syncedAt=new Date().toISOString();}}}
+async function cloudSync(){saveCloudConfig();if(!supabaseClient||!cloudSession){alert("Configure Supabase and sign in first.");return}try{setCloudStatus("Syncing screenshots…");await uploadLocalShots(cloudSession.user.id);let payload=cloudPayload();let {error}=await supabaseClient.from("journal_snapshots").upsert({user_id:cloudSession.user.id,payload,updated_at:new Date().toISOString()},{onConflict:"user_id"});if(error)throw error;persist();setCloudStatus(`Backup complete at ${new Date().toLocaleString()}.`,"good")}catch(e){setCloudStatus("Backup failed: "+(e.message||e),"bad")}}
+async function cloudRestore(){saveCloudConfig();if(!supabaseClient||!cloudSession){alert("Configure Supabase and sign in first.");return}let {data,error}=await supabaseClient.from("journal_snapshots").select("payload,updated_at").eq("user_id",cloudSession.user.id).maybeSingle();if(error){setCloudStatus(error.message,"bad");return}if(!data){setCloudStatus("No cloud backup found for this account.","warn");return}if(!confirm("Restore the cloud backup onto this device? Local records will be replaced. Export a local JSON backup first if you want a safety copy."))return;db=data.payload;await hydrateCloudScreenshots();setCloudStatus(`Restored cloud backup from ${new Date(data.updated_at).toLocaleString()}.`,"good");location.reload()}
+function renderSettings(){ initCloud(); $("sMin").value=db.settings.minChecklist;$("sDaily").value=db.settings.dailyLimitR;$("sRisk").value=db.settings.fixedRiskR; $("settingsChecklist").innerHTML=db.checklist.map((x,i)=>`<div class="check"><span>${i+1}. ${esc(x)}</span></div>`).join("")}
+function saveSettings(){db.settings.minChecklist=Math.max(1,Math.min(db.checklist.length,+$("sMin").value||1));db.settings.dailyLimitR=$("sDaily").value;db.settings.fixedRiskR=$("sRisk").value;persist();alert("Settings saved.");renderSettings();renderChecklist()}
+function exportData(){let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="trading-journal-backup-"+todayISO()+".json";a.click();URL.revokeObjectURL(a.href)}
+function csvCell(v){return '"'+String(v??"").replaceAll('"','""')+'"'}
+function exportCSV(){let cols=["createdAt","instrument","tradeType","session","day","bias","location","condition","news","setup","grade","direction","entry","sl","target","plannedRR","riskR","exit","realizedR","result","status","emotion","confidence","reason","doneWell","doneWrong","nextTime","setupScore","executionScore","psychologyScore"];let lines=[cols.join(",")];db.trades.forEach(t=>lines.push(cols.map(c=>csvCell(c==="doneWell"?t.learning?.doneWell:c==="doneWrong"?t.learning?.doneWrong:c==="nextTime"?t.learning?.nextTime:t[c])).join(",")));let blob=new Blob([lines.join("\n")],{type:"text/csv"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="trading-journal-"+todayISO()+".csv";a.click();URL.revokeObjectURL(a.href)}
+$("importFile").addEventListener("change",e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader;r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.trades||!x.settings)throw Error();db=x;persist();alert("Backup imported.");location.reload()}catch(err){alert("Invalid journal backup.")}};r.readAsText(f)})
+function wipeData(){if(confirm("Delete ALL journal records, reviews and settings? This cannot be undone unless you have a backup.")){localStorage.removeItem(KEY);db=load();location.reload()}}
+if ("serviceWorker" in navigator) window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+initCloud();migrateLegacyScreenshots();renderChecklist();renderDashboard();renderReviews();renderSettings();
+</script>
 </body>
 </html>
