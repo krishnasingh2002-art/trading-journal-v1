@@ -114,10 +114,10 @@
             <form id="tradeForm" onsubmit="handleTradeSubmit(event)" class="space-y-4">
                 <input type="hidden" id="tradeId">
 
-                <!-- Asset Search Autocomplete -->
+                <!-- Asset Search Autocomplete with Full NSE & Crypto Asset Universe -->
                 <div class="relative">
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Trading Pair / Asset</label>
-                    <input type="text" id="assetSearch" placeholder="Type symbol (e.g. RELIANCE, NIFTY, BTCUSDT)..." autocomplete="off" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Trading Pair / Asset (NSE, Sectors, Indices, Crypto)</label>
+                    <input type="text" id="assetSearch" placeholder="Type symbol (e.g. NIFTY, RELIANCE, BANKNIFTY, BTCUSDT)..." autocomplete="off" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
                     <div id="autocompleteResults" class="absolute z-20 w-full mt-1 bg-slate-900 border border-slate-800 rounded-lg shadow-2xl hidden max-h-48 overflow-y-auto"></div>
                 </div>
 
@@ -140,7 +140,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-3 gap-3">
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Entry Price</label>
                         <input type="number" step="any" id="entryPrice" placeholder="0.00" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
@@ -149,36 +149,71 @@
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Stop Loss</label>
                         <input type="number" step="any" id="stopLoss" placeholder="0.00" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
                     </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Target Price</label>
+                        <input type="number" step="any" id="targetPrice" placeholder="0.00" required class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+                    </div>
                 </div>
 
-                <!-- CLS Model Execution Checklists -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Timeframe Alignment</label>
+                        <select id="timeframeAlignment" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <option value="Monthly / Weekly">Monthly / Weekly</option>
+                            <option value="Daily / H4">Daily / H4</option>
+                            <option value="Multi-TF Fully Aligned">Multi-TF Fully Aligned</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">TRC Zone</label>
+                        <select id="trcZone" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <option value="Discount Zone">Discount Zone (Long)</option>
+                            <option value="Premium Zone">Premium Zone (Short)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Market State</label>
+                        <select id="marketState" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+                            <option value="Clean Range">Clean Range</option>
+                            <option value="Messy Range">Messy Range</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Chart Screenshot Upload -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Chart Screenshot</label>
+                    <input type="file" id="tradeScreenshot" accept="image/*" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-sm text-slate-300 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-600">
+                </div>
+
+                <!-- Four-Pillar Execution Checklists -->
                 <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-                    <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400">Execution Criteria Checklist</h4>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400">Pillar 3 & 4 Rule Tracking</h4>
                     <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
                         <input type="checkbox" id="check_ciod" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
                         <span>CIOD Confirmation Close-Mode</span>
                     </label>
                     <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
-                        <input type="checkbox" id="check_session" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
-                        <span>Valid Session Timing</span>
-                    </label>
-                    <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
-                        <input type="checkbox" id="check_trc" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
-                        <span>Discount / Premium TRC Alignment</span>
-                    </label>
-                    <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
                         <input type="checkbox" id="check_manipulation" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
-                        <span>Waited for Manipulation & Sweep</span>
+                        <span>Entered During Manipulation / Sweep</span>
                     </label>
                     <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
-                        <input type="checkbox" id="check_htf" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
-                        <span>HTF Alignment Checked (M/W/D/H4)</span>
+                        <input type="checkbox" id="check_targets" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        <span>Held Core Targets (No Early Exit)</span>
+                    </label>
+                    <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
+                        <input type="checkbox" id="check_discipline" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        <span>Avoided Second-Guessing / Clean Execution</span>
+                    </label>
+                    <label class="flex items-center space-x-3 text-sm text-slate-300 cursor-pointer">
+                        <input type="checkbox" id="check_news" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        <span>High-Impact News / Volatility Filter Clear</span>
                     </label>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Notes / Observations</label>
-                    <textarea id="tradeNotes" rows="3" placeholder="Context, market structure state, psychology..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
+                    <textarea id="tradeNotes" rows="2" placeholder="Context, market structure state, psychology..." class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
                 </div>
 
                 <div class="flex justify-end space-x-3 pt-4 border-t border-slate-800">
@@ -191,11 +226,21 @@
 
     <!-- Application Script -->
     <script>
-        // Embedded Asset Database (NSE Stocks, Sectors, Indices & Top Cryptos)
+        // Comprehensive Asset Universe Database (NSE Indices, Sectoral Indices, Top Nifty 50/100 Equities & Major Cryptos)
         const ASSET_DATABASE = [
+            // Indices
             { symbol: "NIFTY", name: "Nifty 50 Index", sector: "Index", type: "Index" },
             { symbol: "BANKNIFTY", name: "Nifty Bank Index", sector: "Index", type: "Index" },
             { symbol: "FINNIFTY", name: "Nifty Financial Services", sector: "Index", type: "Index" },
+            { symbol: "MIDCAPNIFTY", name: "Nifty Midcap Select", sector: "Index", type: "Index" },
+            { symbol: "NIFTYIT", name: "Nifty IT Index", sector: "Sectoral Index", type: "Index" },
+            { symbol: "NIFTYAUTO", name: "Nifty Auto Index", sector: "Sectoral Index", type: "Index" },
+            { symbol: "NIFTYPHARMA", name: "Nifty Pharma Index", sector: "Sectoral Index", type: "Index" },
+            { symbol: "NIFTYMETAL", name: "Nifty Metal Index", sector: "Sectoral Index", type: "Index" },
+            { symbol: "NIFTYFMCG", name: "Nifty FMCG Index", sector: "Sectoral Index", type: "Index" },
+            { symbol: "NIFTYENERGY", name: "Nifty Energy Index", sector: "Sectoral Index", type: "Index" },
+            { symbol: "NIFTYINFRA", name: "Nifty Infrastructure Index", sector: "Sectoral Index", type: "Index" },
+            // Heavyweight & Active NSE Equities
             { symbol: "RELIANCE", name: "Reliance Industries Ltd.", sector: "Energy", type: "NSE" },
             { symbol: "TCS", name: "Tata Consultancy Services Ltd.", sector: "IT", type: "NSE" },
             { symbol: "HDFCBANK", name: "HDFC Bank Ltd.", sector: "Banking", type: "NSE" },
@@ -214,13 +259,22 @@
             { symbol: "TITAN", name: "Titan Company Ltd.", sector: "Consumer", type: "NSE" },
             { symbol: "NTPC", name: "NTPC Ltd.", sector: "Energy", type: "NSE" },
             { symbol: "POWERGRID", name: "Power Grid Corporation", sector: "Energy", type: "NSE" },
+            { symbol: "BAJFINANCE", name: "Bajaj Finance Ltd.", sector: "Financials", type: "NSE" },
+            { symbol: "TATAMOTORS", name: "Tata Motors Ltd.", sector: "Auto", type: "NSE" },
+            { symbol: "WIPRO", name: "Wipro Ltd.", sector: "IT", type: "NSE" },
+            { symbol: "HCLTECH", name: "HCL Technologies Ltd.", sector: "IT", type: "NSE" },
+            { symbol: "ADANIENT", name: "Adani Enterprises Ltd.", sector: "Metals/Energy", type: "NSE" },
+            { symbol: "ADANIPORTS", name: "Adani Ports & SEZ", sector: "Infrastructure", type: "NSE" },
+            // Cryptocurrencies
             { symbol: "BTCUSDT", name: "Bitcoin / TetherUS", sector: "Crypto", type: "Crypto" },
             { symbol: "ETHUSDT", name: "Ethereum / TetherUS", sector: "Crypto", type: "Crypto" },
             { symbol: "SOLUSDT", name: "Solana / TetherUS", sector: "Crypto", type: "Crypto" },
             { symbol: "XRPUSDT", name: "XRP / TetherUS", sector: "Crypto", type: "Crypto" },
             { symbol: "BNBUSDT", name: "Binance Coin / TetherUS", sector: "Crypto", type: "Crypto" },
             { symbol: "ADAUSDT", name: "Cardano / TetherUS", sector: "Crypto", type: "Crypto" },
-            { symbol: "DOGEUSDT", name: "Dogecoin / TetherUS", sector: "Crypto", type: "Crypto" }
+            { symbol: "DOGEUSDT", name: "Dogecoin / TetherUS", sector: "Crypto", type: "Crypto" },
+            { symbol: "AVAXUSDT", name: "Avalanche / TetherUS", sector: "Crypto", type: "Crypto" },
+            { symbol: "LINKUSDT", name: "Chainlink / TetherUS", sector: "Crypto", type: "Crypto" }
         ];
 
         // IndexedDB Local Storage Setup
@@ -307,9 +361,29 @@
             document.getElementById('tradeModal').classList.add('hidden');
         }
 
-        // Trade Form Submission
+        // Helper to convert file input to base64 for local storage caching
+        function readFileAsDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Trade Form Submission (Mapped completely to 4 Pillars & Checklist Rules)
         async function handleTradeSubmit(e) {
             e.preventDefault();
+            const fileInput = document.getElementById('tradeScreenshot');
+            let screenshotData = null;
+            let screenshotName = null;
+
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                screenshotName = file.name;
+                screenshotData = await readFileAsDataURL(file);
+            }
+
             const trade = {
                 id: document.getElementById('tradeId').value,
                 asset: document.getElementById('assetSearch').value,
@@ -317,12 +391,18 @@
                 modelType: document.getElementById('modelType').value,
                 entryPrice: parseFloat(document.getElementById('entryPrice').value),
                 stopLoss: parseFloat(document.getElementById('stopLoss').value),
+                targetPrice: parseFloat(document.getElementById('targetPrice').value),
+                timeframeAlignment: document.getElementById('timeframeAlignment').value,
+                trcZone: document.getElementById('trcZone').value,
+                marketState: document.getElementById('marketState').value,
+                screenshotData: screenshotData,
+                screenshotName: screenshotName,
                 checklists: {
                     ciod: document.getElementById('check_ciod').checked,
-                    session: document.getElementById('check_session').checked,
-                    trc: document.getElementById('check_trc').checked,
                     manipulation: document.getElementById('check_manipulation').checked,
-                    htf: document.getElementById('check_htf').checked
+                    targets: document.getElementById('check_targets').checked,
+                    discipline: document.getElementById('check_discipline').checked,
+                    news: document.getElementById('check_news').checked
                 },
                 notes: document.getElementById('tradeNotes').value,
                 updatedAt: new Date().toISOString()
@@ -356,17 +436,27 @@
                         </div>
                         <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">${t.lifecycle}</span>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 text-xs text-slate-400 border-t border-b border-slate-800 py-2">
-                        <div>Entry: <span class="text-white font-semibold">${t.entryPrice}</span></div>
-                        <div>Stop Loss: <span class="text-white font-semibold">${t.stopLoss}</span></div>
+                    
+                    <div class="grid grid-cols-3 gap-1 text-[11px] text-slate-400 bg-slate-950 p-2.5 rounded-lg border border-slate-800/60">
+                        <div>Entry: <span class="text-white font-bold">${t.entryPrice}</span></div>
+                        <div>SL: <span class="text-red-400 font-bold">${t.stopLoss}</span></div>
+                        <div>Target: <span class="text-emerald-400 font-bold">${t.targetPrice}</span></div>
                     </div>
+
+                    <div class="flex flex-wrap gap-1.5 text-[10px]">
+                        <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">${t.timeframeAlignment}</span>
+                        <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">${t.trcZone}</span>
+                        <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">${t.marketState}</span>
+                    </div>
+
+                    ${t.screenshotData ? `<div class="mt-2"><img src="${t.screenshotData}" class="h-32 w-full object-cover rounded-lg border border-slate-800"></div>` : ''}
                     <p class="text-xs text-slate-300 line-clamp-2">${t.notes || 'No notes provided.'}</p>
-                    <div class="text-[10px] text-slate-500 pt-1">Updated: ${new Date(t.updatedAt).toLocaleString()}</div>
+                    <div class="text-[10px] text-slate-500 pt-1 border-t border-slate-800/80">Updated: ${new Date(t.updatedAt).toLocaleString()}</div>
                 </div>
             `).join('');
         }
 
-        // Autocomplete Logic
+        // Autocomplete Logic for Asset Universe
         const searchInput = document.getElementById('assetSearch');
         const resultsContainer = document.getElementById('autocompleteResults');
 
@@ -378,7 +468,7 @@
             }
 
             const matches = ASSET_DATABASE.filter(item => 
-                item.symbol.includes(query) || item.name.toUpperCase().includes(query)
+                item.symbol.includes(query) || item.name.toUpperCase().includes(query) || item.sector.toUpperCase().includes(query)
             );
 
             if (matches.length === 0) {
@@ -387,9 +477,12 @@
             }
 
             resultsContainer.innerHTML = matches.map(m => `
-                <div class="p-3 hover:bg-slate-800 cursor-pointer flex justify-between items-center text-sm" onclick="selectAsset('${m.symbol}')">
-                    <span class="font-bold text-white">${m.symbol}</span>
-                    <span class="text-xs text-slate-400">${m.name} (${m.sector})</span>
+                <div class="p-3 hover:bg-slate-800 cursor-pointer flex justify-between items-center text-sm border-b border-slate-800/40 last:border-0" onclick="selectAsset('${m.symbol}')">
+                    <div>
+                        <span class="font-bold text-white">${m.symbol}</span>
+                        <span class="text-xs text-slate-400 block">${m.name}</span>
+                    </div>
+                    <span class="text-[10px] uppercase font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">${m.sector}</span>
                 </div>
             `).join('');
             
@@ -433,7 +526,7 @@
         async function syncToCloud() {
             const statusEl = document.getElementById('syncStatus');
             try {
-                statusEl.innerText = "Syncing to Supabase...";
+                statusEl.innerText = "Syncing snapshots to Supabase...";
                 const client = await getSupabaseClient();
                 const trades = await getAllTrades();
 
@@ -441,10 +534,8 @@
                     throw new Error("No trades found in local storage to sync.");
                 }
 
-                // Push payload snapshot
                 const payload = { version: 2, timestamp: new Date().toISOString(), trades };
                 
-                // For anonymous/simple user setup or authenticated session check
                 const { data: { user } } = await client.auth.getUser();
                 const userId = user ? user.id : 'anonymous_user';
 
@@ -509,3 +600,4 @@
     </script>
 </body>
 </html>
+
