@@ -1,74 +1,36 @@
-# Trade Process Journal — iPad/iPhone PWA
+# Trading Process Journal V2
 
-A local-first trading journal designed around the supplied lecturer framework:
+V2 keeps the original local-first workflow and adds only two long-term durability upgrades:
 
-1. Setup data
-2. Drawdown data
-3. Context data
-4. Execution data
+1. **Screenshots move out of localStorage into IndexedDB** so image-heavy journals do not consume the browser's small key/value quota.
+2. **Optional private Supabase backup** for cross-device recovery. Journal records live in a private Postgres row and screenshots live in a private Storage bucket. GitHub Pages still hosts only the app code.
 
-It also separates:
-- Model quality
-- Execution quality
-- Psychology
-- Outcome
-- Weekly review
+The app is intentionally **not** real-time collaborative and does not automatically overwrite the cloud on every keystroke. Use **Backup / Sync now** after a session or review. This keeps the data model simple and avoids silent cross-device conflicts.
 
-## What is included
+## One-time Supabase setup
 
-- Pre-trade process gate
-- CLS Model 1 starter checklist: range, liquidity, manipulation, displacement, confirmation
-- Entry / stop / target / planned R:R
-- Context fields: pair, session, day, HTF bias/location, premium/discount, market condition, news/volatility
-- Before-trade psychology
-- Before and after screenshots
-- Post-trade execution audit
-- Outcome in R
-- Learning fields
-- Setup / execution / psychology scores
-- Dashboard
-- Win rate, expectancy, R:R, drawdown and streak calculations
-- Filters and trade log
-- Saturday weekly review
-- JSON backup/restore
-- CSV export
-- Offline cache / PWA shell
+1. Create a Supabase project.
+2. In **SQL Editor**, run `supabase.sql` from this folder.
+3. In Supabase **Authentication**, keep Email enabled. If email confirmation is enabled, confirm the account email after creating it.
+4. In the journal's Settings page, enter the project URL and the publishable/anon browser key.
+5. Create/sign in to your journal account.
+6. Tap **Backup / Sync now**.
 
-## Important design choice
+The SQL enables Row Level Security and restricts both the database snapshot and screenshot objects to the authenticated user's own `auth.uid()`. Supabase's security model requires RLS plus appropriate grants/policies for exposed tables.
 
-The app does not invent a risk percentage or daily loss limit from the lecturer material. Those are configurable in Settings and start with conservative placeholders only where needed by the form.
+## Cross-device workflow
 
-## Data privacy
+- Device A: work normally → Settings → **Backup / Sync now**.
+- Device B: open the same GitHub Pages app → enter the same Supabase URL/key → sign in → **Restore from cloud**.
+- Screenshots are downloaded back into that device's IndexedDB.
 
-This build is local-first. Records are stored in the browser's localStorage. No server is required for the core journal.
+## Existing V1 data
 
-Because browser storage is not a backup, use **Export JSON backup** regularly.
+On first launch, V2 automatically migrates any old base64 screenshots found in the V1 journal into IndexedDB. Trade records remain in the same local journal structure.
 
-## Run locally
+## Important
 
-Any static web server can serve this folder. For example, from a computer:
-
-    python -m http.server 8000
-
-Then open the displayed address in Safari.
-
-Opening `index.html` directly also works for the journal itself, but the offline PWA service worker requires HTTPS or localhost.
-
-## iPad installation
-
-After hosting the folder on GitHub Pages or another HTTPS static host:
-
-1. Open the URL in Safari on iPad/iPhone.
-2. Share.
-3. Add to Home Screen.
-4. Open it from the Home Screen.
-
-## GitHub Pages
-
-Create a new repository and upload the files in this folder to its root. Enable GitHub Pages from the repository's Pages settings and choose the main branch/root as the source.
-
-Do NOT put sensitive journal records or exported backups into a public repository.
-
-## Next engineering stage
-
-The V1 is intentionally local-first and dependency-free. A later V2 can add a private cloud database/authentication layer while keeping the same UI and export format.
+- Do **not** put the Supabase `service_role` key in the website. Use only the browser-safe publishable/anon key.
+- Do **not** make the screenshot bucket public.
+- The GitHub repository remains safe to make public because journal records and screenshots are not committed there.
+- Supabase Free currently includes 500 MB database, 1 GB file storage, and 5 GB egress. Free projects can pause after a period of inactivity, so this is a backup layer, not a guarantee of zero-maintenance production infrastructure.
